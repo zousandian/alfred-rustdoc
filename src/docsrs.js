@@ -60,7 +60,7 @@ async function searchCrate(query) {
 };
 
 async function fetchSearchIndex(crate, version) {
-    console.log("....");
+    // console.log("....");
     let url = `https://docs.rs/${crate}/`;
 
     if (version !== undefined) {
@@ -69,7 +69,7 @@ async function fetchSearchIndex(crate, version) {
     }
 
     const resp = await httpget(url);
-    const result = resp[0].match(/search-index.*?js/g);
+    const result = resp[0].match(/(?<=\/)search-index.+?\.js/g);
 
     if (result.length === 0) {
         return null;
@@ -83,8 +83,12 @@ async function fetchSearchIndex(crate, version) {
     // a search index file with some basic substitution.
     new VM({
         sandbox: {
-            addSearchOptions: () => { },
+            addSearchOptions: () => {},
             initSearch: (result) => { searchIndex = result },
+            window: {
+                addSearchOptions: () => {},
+                initSearch: (result) => { searchIndex = result },
+            }
         }
     }).run(rawIndex[0]);
 
