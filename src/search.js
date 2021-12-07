@@ -1,10 +1,6 @@
-var { initSearch: initSearchLegacy } = require("./search-legacy");
 // https://github.com/rust-lang/rust/blob/master/src/librustdoc/html/static/js/search.js
 // eslint-disable-next-line no-unused-vars
 function hasOwnPropertyRustdoc(obj, property) {
-  return Object.prototype.hasOwnProperty.call(obj, property);
-}
-function hasOwnProperty(obj, property) {
   return Object.prototype.hasOwnProperty.call(obj, property);
 }
 function onEach(arr, func, reversed) {
@@ -1189,18 +1185,21 @@ function initSearch(rawSearchIndex) {
       searchIndex.push(crateRow);
       currentIndex += 1;
 
+      // TODO: can we do this?
+      var isNewVersion = !!rawSearchIndex[crate].t;
+
       // an array of (Number) item types
-      var itemTypes = rawSearchIndex[crate].t || [];
+      var itemTypes = isNewVersion ? rawSearchIndex[crate].t : rawSearchIndex[crate].i.map(arr => arr[0]);
       // an array of (String) item names
-      var itemNames = rawSearchIndex[crate].n || [];
+      var itemNames = isNewVersion ? rawSearchIndex[crate].n : rawSearchIndex[crate].i.map(arr => arr[1]);
       // an array of (String) full paths (or empty string for previous path)
-      var itemPaths = rawSearchIndex[crate].q || [];
+      var itemPaths = isNewVersion ? rawSearchIndex[crate].q : rawSearchIndex[crate].i.map(arr => arr[2]);
       // an array of (String) descriptions
-      var itemDescs = rawSearchIndex[crate].d || [];
+      var itemDescs = isNewVersion ? rawSearchIndex[crate].d : rawSearchIndex[crate].i.map(arr => arr[3]);
       // an array of (Number) the parent path index + 1 to `paths`, or 0 if none
-      var itemParentIdxs = rawSearchIndex[crate].i || [];
+      var itemParentIdxs = isNewVersion ? rawSearchIndex[crate].i : rawSearchIndex[crate].i.map(arr => arr[4]);
       // an array of (Object | null) the type of the function, if any
-      var itemFunctionSearchTypes = rawSearchIndex[crate].f || [];
+      var itemFunctionSearchTypes = isNewVersion ? rawSearchIndex[crate].f : rawSearchIndex[crate].i.map(arr => arr[5]);
       // an array of [(Number) item type,
       //              (String) name]
       var paths = rawSearchIndex[crate].p || [];
